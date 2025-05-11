@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Karan Kumar's Study Planner</title>
+    <style>
+        :root {
+            --primary: #6c5ce7;
+            --secondary: #a29bfe;
+            --accent: #fd79a8;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --success: #00b894;
+            --warning: #fdcb6e;
+            --danger: #d63031;
+            --local: #6d0d5b;
+            --monlo: #933c0a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+
+            color: var(--primary);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            font-weight: lighter;
+            color: var(--dark);
+        }
+
+        .clock-container {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .time {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--local);
+        }
+
+        .date {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--monlo);
+        }
+
+        .alarm-container {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .alarm-form {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .alarm-form input {
+            padding: 10px;
+            border: 2px solid var(--secondary);
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .alarm-form button {
+            padding: 10px 20px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .alarm-form button:hover {
+            background-color: #5649d1;
+        }
+
+        .alarms-list {
+            margin-top: 20px;
+        }
+
+        .alarm-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .delete-alarm {
+            color: var(--danger);
+            cursor: pointer;
+        }
+
+        .phases-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .phase {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .phase:hover {
+            transform: translateY(-5px);
+        }
+
+        .phase h2 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--secondary);
+        }
+
+        .phase h3 {
+            color: var(--dark);
+            margin: 15px 0 10px;
+        }
+
+        .task-list {
+            list-style-type: none;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            padding: 8px;
+            border-radius: 8px;
+            transition: background 0.3s;
+        }
+
+        .task-item:hover {
+            background: #f3f3f3;
+        }
+
+        .task-item input[type="checkbox"] {
+            margin-right: 10px;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .task-item label {
+            flex-grow: 1;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .task-item input[type="checkbox"]:checked+label {
+            text-decoration: line-through;
+            color: #888;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--success);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transform: translateX(200%);
+            transition: transform 0.3s;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        @media (max-width: 768px) {
+            .phases-container {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .time {
+                font-size: 2rem;
+            }
+
+            .date {
+                font-size: 1.2rem;
+            }
+        }
+
+        .box1 {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            background-color: rgb(94, 202, 79);
+            width: 270px;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(247, 247, 247, 0.1);
+        }
+
+        .stat-box {
+            text-align: center;
+            flex: 1;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #ffffff;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            justify-content: center;
+        }
+
+        .action-buttons button {
+            padding: 10px 20px;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .export-btn {
+            background-color: var(--success);
+        }
+
+        .export-btn:hover {
+            background-color: #00a884;
+        }
+
+        .reset-btn {
+            background-color: var(--danger);
+        }
+
+        .reset-btn:hover {
+            background-color: #c02b2b;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1>Karan Kumar</h1>
+        <p>Placement Preparation Planner</p>
+    </div>
+
+    <div class="clock-container">
+        <div class="time" id="time">00:00:00</div>
+        <div class="date" id="date">Day, Month 00, 0000</div>
+
+        <div class="stats">
+            <div class="stat-box">
+                <div class="stat-number" id="total-tasks">0</div>
+                <div class="stat-label">Total Tasks</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number" id="completed-tasks">0</div>
+                <div class="stat-label">Completed</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number" id="remaining-tasks">0</div>
+                <div class="stat-label">Remaining</div>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <button class="export-btn" id="exportBtn">Export to Excel</button>
+            <button class="reset-btn" id="resetBtn">Reset All Tasks</button>
+        </div>
+    </div>
+
+    <div class="box1">
+        <h1>Phase 1 (Foundation)</h1>
+        <h3>finish in 1 - 3 week</h3>
+        <p>(Do 2 topics per day)</p>
+    </div>
+
+    <div class="phases-container">
+        <!-- Phase 1 -->
+        <div class="phase">
+            <h2>Numerical Ability</h2>
+            <h5>(Do 2 topics per day)</h5>
+            <ul class="task-list">
+                <li class="task-item">
+                    <input type="checkbox" id="num1">
+                    <label for="num1">Number Systems</label>
+                </li>
+                <li class="task-item">
+                    <input type="checkbox" id="num2">
+                    <label for="num2">LCM & HCF</label>
+                </li>
+                <li class="task-item">
+                    <input type="checkbox" id="num3">
+                    <label for="num3">Percentages</label>
+                </li>
+                <li class="task-item">
+                    <input type="checkbox" id="num4">
+                    <label for="num4">Profit and Loss</label>
+                </li>
+                <li class="task-item">
+                    <input type="checkbox" id="num5">
+                    <label for="num5">Simple & Compound Interest</label>
+                </li>
+                <li class="task-item">
+                    <input type="checkbox" id="num6">
+                    <label for="num6">Time, Speed & Distance</label>
+                </li>
+                <li class="task-item">
+                    <input type="checkbox" id="num7">
+                    <label for="num7">Time & Work</label>
+                </li>
+                <li class="task-item">
+                    <input type="checkbox" id="num8">
+                    <label for="num8">Ratio, Proportion & Averages</label>
+                </li>
+                <li class="task-item">
+                    <input type="checkbox" id="num9">
+                    <label for="num9">Mixtures & Allegations</label>
+                </li>
+                <li class="task-item">
+                    <input type="checkbox" id="num10">
+                    <label for="num10">Permutations & Combinations</label>
+                </li>
+                <li class="task-item">
+                    <input type="checkbox" id="num11">
+                    <label for="num11">Probability</label>
+                </li>
+                <li class="task-item">
+                    <input type="checkbox" id="num12">
+                    <label for="num12">Mensuration</label>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Phase 2 -->
+        <div class="phase">
+            <h2>Verbal Ability</h2>
+            <h5>(Do 2 topics per day)</h5>
+            <ul class="task-list">
+                <li class="task-item">
+                    <input type="checkbox" id="verb1">
+                    <label for="verb1">Reading Comprehension (Practice daily)</label>
+                </li>
+                <li class="task-item">
+                    <input type="checkbox" id="verb2">
+                    <label for="verb2">Grammar: Error Spotting</label>
+                </li>
+                <li class="task-item">
+                    <input type="checkbox" id="verb3">
+                    <label for="verb3">Grammar: Sentence Correction</label>
+                </li>
+                <li class="task-item">
+                    <input type="checkbox" id="verb4">
+                    <label for="verb4">Vocabulary: Synonyms & Antonyms</label>
+                </li>
+                <li class="task-item">
+                    <input type="checkbox" id="verb5">
+                    <label for="verb5">Vocabulary: Word Usage</label>
+                </li>
+                <li class="task-item">
+                    <input type="checkbox" id="verb6">
+                    <label for="verb6">Fill in the Blanks</label>
+                </li>
+                <li class="task-item">
+                    <input type="checkbox" id="verb7">
+                    <label for="verb7">Para Jumbles</label>
+                </li>
+                <li class="task-item">
+                    <input type="checkbox" id="verb8">
+                    <label for="verb8">Sentence Completion</label>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Phase 3 -->
+        <div class="phase">
+            <h2>Reasoning Ability</h2>
+            <h5>(Do 2 topics per day)</h5>
+            <ul class="task-list">
+                <li class="task-item">
+                    <input type="checkbox" id="reason1">
+                    <label for="reason1">Series (Number, Letter)</label>
+                </li>
+                <li class="task-item">
+                    <input type="checkbox" id="reason2">
+                    <label for="reason2">Blood Relations</label>
+                </li>
+                <li class="task-item">
+                    <input type="checkbox" id="reason3">
+                    <label for="reason3">Direction Sense</label>
+                </li>
+                <li class="task-item">
+                    <input type="checkbox" id="reason4">
+                    <label for="reason4">Syllogisms</label>
+                </li>
+                <li class="task-item">
+                    <input type="checkbox" id="reason5">
+                    <label for="reason5">Coding-Decoding</label>
+                </li>
+                <li class="task-item">
+                    <input type="checkbox" id="reason6">
+                    <label for="reason6">Statements & Conclusions</label>
+                </li>
+                <li class="task-item">
+                    <input type="checkbox" id="reason7">
+                    <label for="reason7">Odd One Out</label>
+                </li>
+                <li class="task-item">
+                    <input type="checkbox" id="reason8">
+                    <label for="reason8">Analogy</label>
+                </li>
+                <li class="task-item">
+                    <input type="checkbox" id="reason9">
+                    <label for="reason9">Venn Diagrams</label>
+                </li>
+                <li class="task-item">
+                    <input type="checkbox" id="reason10">
+                    <label for="reason10">Logical Connectives</label>
+                </li>
+                <li class="task-item">
+                    <input type="checkbox" id="reason11">
+                    <label for="reason11">Data Arrangements</label>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Phase 2 -->
+        <div class="phase">
+            <h2>Phase 2: Advanced (Weeks 4–5)</h2>
+            <h3>Advanced Quantitative Ability</h3>
+            <ul class="task-list">
+                <li class="task-item">
+                    <input type="checkbox" id="adv1">
+                    <label for="adv1">Logarithms</label>
+                </li>
+                <li class="task-item">
+                    <input type="checkbox" id="adv2">
+                    <label for="adv2">Number Theory</label>
+                </li>
+                <li class="task-item">
+                    <input type="checkbox" id="adv3">
+                    <label for="adv3">Set Theory</label>
+                </li>
+                <li class="task-item">
+                    <input type="checkbox" id="adv4">
+                    <label for="adv4">Functions</label>
+                </li>
+                <li class="task-item">
+                    <input type="checkbox" id="adv5">
+                    <label for="adv5">Complex Permutations/Combinations</label>
+                </li>
+            </ul>
+
+            <h3>Advanced Reasoning</h3>
+            <ul class="task-list">
+                <li class="task-item">
+                    <input type="checkbox" id="advr1">
+                    <label for="advr1">Puzzle-based Problems</label>
+                </li>
+                <li class="task-item">
+                    <input type="checkbox" id="advr2">
+                    <label for="advr2">Cryptarithmetic</label>
+                </li>
+                <li class="task-item">
+                    <input type="checkbox" id="advr3">
+                    <label for="advr3">Input-Output Logic</label>
+                </li>
+                <li class="task-item">
+                    <input type="checkbox" id="advr4">
+                    <label for="advr4">Clocks & Calendars</label>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Phase 3 -->
+        <div class="phase">
+            <h2>Phase 3: Programming (Parallel – 2 days a week)</h2>
+            <h3>Coding Practice</h3>
+            <ul class="task-list">
+                <li class="task-item">
+                    <input type="checkbox" id="code1">
+                    <label for="code1">Learn syntax: C/C++/Java/Python (Choose one)</label>
+                </li>
+                <li class="task-item">
+                    <input type="checkbox" id="code2">
+                    <label for="code2">Arrays</label>
+                </li>
+                <li class="task-item">
+                    <input type="checkbox" id="code3">
+                    <label for="code3">Strings</label>
+                </li>
+                <li class="task-item">
+                    <input type="checkbox" id="code4">
+                    <label for="code4">Recursion</label>
+                </li>
+                <li class="task-item">
+                    <input type="checkbox" id="code5">
+                    <label for="code5">Sorting & Searching</label>
+                </li>
+                <li class="task-item">
+                    <input type="checkbox" id="code6">
+                    <label for="code6">Linked Lists</label>
+                </li>
+                <li class="task-item">
+                    <input type="checkbox" id="code7">
+                    <label for="code7">Trees</label>
+                </li>
+                <li class="task-item">
+                    <input type="checkbox" id="code8">
+                    <label for="code8">Greedy & Dynamic Programming</label>
+                </li>
+            </ul>
+
+            <h3>Computer Science Basics (MCQs)</h3>
+            <ul class="task-list">
+                <li class="task-item">
+                    <input type="checkbox" id="cs1">
+                    <label for="cs1">OOPs Concepts</label>
+                </li>
+                <li class="task-item">
+                    <input type="checkbox" id="cs2">
+                    <label for="cs2">DBMS</label>
+                </li>
+                <li class="task-item">
+                    <input type="checkbox" id="cs3">
+                    <label for="cs3">Operating Systems</label>
+                </li>
+                <li class="task-item">
+                    <input type="checkbox" id="cs4">
+                    <label for="cs4">Computer Networks</label>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Final Phase -->
+        <div class="phase">
+            <h2>Final Phase: Revision & Mocks (Last 1–2 Weeks)</h2>
+            <ul class="task-list">
+                <li class="task-item">
+                    <input type="checkbox" id="final1">
+                    <label for="final1">Solve 5 full-length mock tests</label>
+                </li>
+                <li class="task-item">
+                    <input type="checkbox" id="final2">
+                    <label for="final2">Revise common formulas (Quant + Logical)</label>
+                </li>
+                <li class="task-item">
+                    <input type="checkbox" id="final3">
+                    <label for="final3">Practice 5–10 coding problems per week</label>
+                </li>
+                <li class="task-item">
+                    <input type="checkbox" id="final4">
+                    <label for="final4">Review previously attempted errors</label>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Clock functionality
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('time').textContent = now.toLocaleTimeString();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('date').textContent = now.toLocaleDateString(undefined, options);
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Task Management System
+        document.addEventListener('DOMContentLoaded', function () {
+            initializeTaskSystem();
+            setupEventListeners();
+            updateStatistics(); // Initial stats calculation
+        });
+
+        function initializeTaskSystem() {
+            // Load saved states from localStorage
+            const savedTasks = JSON.parse(localStorage.getItem('taskProgress')) || {};
+
+            // Apply saved states to checkboxes
+            document.querySelectorAll('.task-item input[type="checkbox"]').forEach(checkbox => {
+                if (savedTasks[checkbox.id]) {
+                    checkbox.checked = savedTasks[checkbox.id].completed;
+                    updateTaskVisual(checkbox);
+                }
+            });
+        }
+
+        function setupEventListeners() {
+            // Checkbox changes
+            document.querySelectorAll('.task-item input[type="checkbox"]').forEach(checkbox => {
+                checkbox.addEventListener('change', function () {
+                    updateTaskVisual(this);
+                    saveTaskProgress();
+                    updateStatistics();
+                });
+            });
+
+            // Export button
+            document.getElementById('exportBtn').addEventListener('click', exportToExcel);
+
+            // Reset button
+            document.getElementById('resetBtn').addEventListener('click', resetAllTasks);
+        }
+
+        function updateTaskVisual(checkbox) {
+            const label = checkbox.nextElementSibling;
+            if (checkbox.checked) {
+                label.style.textDecoration = 'line-through';
+                label.style.color = '#888';
+            } else {
+                label.style.textDecoration = 'none';
+                label.style.color = '';
+            }
+        }
+
+        function saveTaskProgress() {
+            const tasks = {};
+            document.querySelectorAll('.task-item input[type="checkbox"]').forEach(checkbox => {
+                tasks[checkbox.id] = {
+                    completed: checkbox.checked,
+                    label: checkbox.nextElementSibling.textContent,
+                    lastUpdated: new Date().toISOString()
+                };
+            });
+            localStorage.setItem('taskProgress', JSON.stringify(tasks));
+        }
+
+        function updateStatistics() {
+            const checkboxes = document.querySelectorAll('.task-item input[type="checkbox"]');
+            const completed = document.querySelectorAll('.task-item input[type="checkbox"]:checked').length;
+            const total = checkboxes.length;
+            const remaining = total - completed;
+
+            document.getElementById('total-tasks').textContent = total;
+            document.getElementById('completed-tasks').textContent = completed;
+            document.getElementById('remaining-tasks').textContent = remaining;
+        }
+
+        function exportToExcel() {
+            // Prepare data
+            const tasks = [];
+            document.querySelectorAll('.task-item').forEach(item => {
+                const checkbox = item.querySelector('input[type="checkbox"]');
+                tasks.push({
+                    id: checkbox.id,
+                    task: checkbox.nextElementSibling.textContent,
+                    status: checkbox.checked ? 'Completed' : 'Pending',
+                    category: item.closest('.phase').querySelector('h2').textContent,
+                    lastUpdated: new Date().toISOString()
+                });
+            });
+
+            // Get statistics
+            const stats = {
+                totalTasks: document.getElementById('total-tasks').textContent,
+                completedTasks: document.getElementById('completed-tasks').textContent,
+                remainingTasks: document.getElementById('remaining-tasks').textContent,
+                completionPercentage: Math.round((document.getElementById('completed-tasks').textContent /
+                    document.getElementById('total-tasks').textContent) * 100) + '%',
+                exportDate: new Date().toLocaleString()
+            };
+
+            // Create CSV content
+            let csvContent = "Task ID,Task Description,Status,Category,Last Updated\n";
+
+            tasks.forEach(task => {
+                csvContent += `"${task.id}","${task.task}","${task.status}","${task.category}","${task.lastUpdated}"\n`;
+            });
+
+            csvContent += "\nSummary Statistics\n";
+            csvContent += `Total Tasks,${stats.totalTasks}\n`;
+            csvContent += `Completed Tasks,${stats.completedTasks}\n`;
+            csvContent += `Remaining Tasks,${stats.remainingTasks}\n`;
+            csvContent += `Completion Percentage,${stats.completionPercentage}\n`;
+            csvContent += `Report Generated On,${stats.exportDate}\n`;
+
+            // Create and trigger download
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', `karan_Study_Progress_${new Date().toISOString().slice(0, 10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function resetAllTasks() {
+            if (confirm('Are you sure you want to reset all task progress?')) {
+                document.querySelectorAll('.task-item input[type="checkbox"]').forEach(checkbox => {
+                    checkbox.checked = false;
+                    updateTaskVisual(checkbox);
+                });
+                localStorage.removeItem('taskProgress');
+                updateStatistics();
+            }
+        }
+    </script>
+</body>
+
+</html>
